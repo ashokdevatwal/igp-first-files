@@ -1,0 +1,45 @@
+pipeline {
+    agent any
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                // Checkout the Java project from GitHub with authentication
+                git branch: 'main',credentialsId: '41f64d14-1941-4b62-9af7-8d78b8aae345', url: 'https://github.com/ashokdevatwal/abc_technologies.git'
+            }
+        }
+        
+        stage('Compile Source Code') {
+            steps {
+                // Compile the source code
+                sh 'mvn clean compile'
+            }
+        }
+        
+        stage('Test Source Code') {
+            steps {
+                // Run tests
+                sh 'mvn test'
+            }
+        }
+        
+        stage('Package Code') {
+            steps {
+                // Package the code
+                sh 'mvn package'
+                
+                // Build the Docker image
+                sh 'docker build -t abc-technologies .'
+            }
+        }
+        
+        stage('Deploy') {
+            steps{
+                
+                // deploy build to the Docker container
+                sh 'docker cp ./target/ABCtechnologies-1.0.war abc-technologies-container:/usr/local/tomcat/webapps/'
+            }
+        }
+   
+    }
+}
